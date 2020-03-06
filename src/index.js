@@ -4,6 +4,7 @@ const express = require("express");
 const PORT = process.env.PORT || 3000;
 const socketio = require("socket.io")
 const Filter = require("bad-words")
+const {generateMessage} = require("./utils/messages")
 
 const app = express()
 const server = http.createServer(app)
@@ -22,14 +23,14 @@ io.on('connection',(socket)=>{
     //     //socket.emit('countUpdated',count);
     //     io.emit('countUpdated',count)
     // })
-    socket.emit('message','welcome')
-    socket.broadcast.emit('message','a new user has joined')
+    socket.emit('message',generateMessage("welcome!"))
+    socket.broadcast.emit('message',generateMessage('a new user has joined'))
     socket.on('sendmessage',(message,callback)=>{
         const filter = new Filter()
         if(filter.isProfane(message)){
             return callback("Profanity is not allowed")
         }
-        io.emit('message',message)
+        io.emit('message',generateMessage(message))
         callback()
     })
     socket.on('location',(longitude,latitude,callback)=>{
@@ -37,7 +38,7 @@ io.on('connection',(socket)=>{
         callback()
     })
     socket.on('disconnect',()=>{
-        io.emit('message','A user has left!')
+        io.emit('message',generateMessage('A user has left!'))
     })
 })
 
